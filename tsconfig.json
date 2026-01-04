@@ -11,10 +11,10 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "types": ["node", "@playwright/test"],
-    "typeRoots": ["./node_modules/@types"]
+    "types": ["node", "@playwright/test"]
   },
   "include": ["tests/**/*", "pages/**/*", "*.ts"],
   "exclude": ["node_modules", "dist", "test-results", "playwright-report"]
 }
+// ...existing code...
 
