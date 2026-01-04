@@ -1,0 +1,21 @@
+{
+  "name": "capslock-qa-testing",
+  "version": "1.0.0",
+  "description": "Automated testing for test-qa.capslock.global using Playwright and TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug"
+  },
+  "keywords": ["playwright", "testing", "qa", "automation"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
+  }
+}
+
