@@ -94,21 +94,25 @@ export class FormPage {
   }
 
   async fillName(name: string) {
+    await this.nameInput.waitFor({ state: 'visible', timeout: 10000 });
     await this.nameInput.fill(name);
     await this.page.waitForTimeout(500);
   }
 
   async fillEmail(email: string) {
+    await this.emailInput.waitFor({ state: 'visible', timeout: 10000 });
     await this.emailInput.fill(email);
     await this.page.waitForTimeout(500);
   }
 
   async fillPhone(phone: string) {
+    await this.phoneInput.waitFor({ state: 'visible', timeout: 10000 });
     await this.phoneInput.fill(phone);
     await this.page.waitForTimeout(500);
   }
 
   async submitForm() {
+    await this.step4SubmitButton.waitFor({ state: 'visible', timeout: 10000 });
     await this.step4SubmitButton.click();
     await this.page.waitForTimeout(3000);
   }
