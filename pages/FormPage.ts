@@ -1,4 +1,7 @@
 import { Page, Locator } from '@playwright/test';
+import { mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 export class FormPage {
   readonly page: Page;
@@ -37,7 +40,7 @@ export class FormPage {
     this.step1NextButton = page.locator('#form-container-1 > div.steps.step-2 > div.row > div > div > form > div > div.col-12.mt-4.pt-2 > div > button, button[data-tracking="btn-step-1"], button:has-text("Next")').first();
 
     // Step 2 - Why Interested
-    this.step2NextButton = page.locator('#form-container-1 > div.steps.step-3 > div.row > div > div > form > div > div.col-12.mt-4 > div > button, button[data-tracking^="btn-step"], button:has-text("Next")').first();
+    this.step2NextButton = page.locator('#form-container-1 > div.steps.step-2 > div.row > div > div > form > div > div.col-12.mt-4 > div > button, button[data-tracking="btn-step-2"], button:has-text("Next")').first();
 
     // Step 3 - Property Type
     this.propertyTypeLabel = page.locator('#form-container-1 > div.steps.step-3 > div.row > div > div > form > div > div:nth-child(1) > div > div:nth-child(1) > div > label').first();
@@ -52,9 +55,8 @@ export class FormPage {
   }
 
   async goto() {
-    await this.page.goto('/');
-    await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(1500);
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.page.waitForTimeout(2000);
   }
 
   async fillZipcode(zipcode: string) {
@@ -75,16 +77,32 @@ export class FormPage {
   }
 
   async selectPropertyType() {
-    // Wait for step 3 to be visible, then try label first, fallback to radio button
-    await this.page.waitForTimeout(1000); // Wait for step transition
-    const labelVisible = await this.propertyTypeLabel.isVisible({ timeout: 5000 }).catch(() => false);
-    if (labelVisible) {
-      await this.propertyTypeLabel.click({ force: true });
-    } else {
-      await this.propertyTypeRadio.waitFor({ state: 'attached', timeout: 10000 });
-      await this.propertyTypeRadio.check({ force: true });
+    // Wait for step 3 to be visible
+    await this.page.waitForTimeout(1500); // Wait for step transition
+    
+    // Use JavaScript to click the radio button directly (more reliable)
+    try {
+      await this.propertyTypeRadio.evaluate((el: HTMLInputElement) => {
+        el.click();
+      });
+      await this.page.waitForTimeout(500);
+    } catch (e) {
+      // Fallback: try clicking via label
+      try {
+        const radioId = await this.propertyTypeRadio.getAttribute('id');
+        if (radioId) {
+          await this.page.evaluate((id: string) => {
+            const label = document.querySelector(`label[for="${id}"]`) as HTMLLabelElement;
+            if (label) label.click();
+          }, radioId);
+          await this.page.waitForTimeout(500);
+        }
+      } catch (e2) {
+        // Last resort: force click
+        await this.propertyTypeRadio.click({ force: true });
+        await this.page.waitForTimeout(500);
+      }
     }
-    await this.page.waitForTimeout(500);
   }
 
   async clickStep3Next() {
@@ -94,19 +112,19 @@ export class FormPage {
   }
 
   async fillName(name: string) {
-    await this.nameInput.waitFor({ state: 'visible', timeout: 10000 });
+    await this.nameInput.waitFor({ state: 'attached', timeout: 10000 });
     await this.nameInput.fill(name);
     await this.page.waitForTimeout(500);
   }
 
   async fillEmail(email: string) {
-    await this.emailInput.waitFor({ state: 'visible', timeout: 10000 });
+    await this.emailInput.waitFor({ state: 'attached', timeout: 10000 });
     await this.emailInput.fill(email);
     await this.page.waitForTimeout(500);
   }
 
   async fillPhone(phone: string) {
-    await this.phoneInput.waitFor({ state: 'visible', timeout: 10000 });
+    await this.phoneInput.waitFor({ state: 'attached', timeout: 10000 });
     await this.phoneInput.fill(phone);
     await this.page.waitForTimeout(500);
   }
@@ -138,8 +156,16 @@ export class FormPage {
   }
 
   async takeScreenshot(name: string) {
+    const screenshotsDir = 'screenshots';
+    
+    // Ensure screenshots directory exists
+    if (!existsSync(screenshotsDir)) {
+      await mkdir(screenshotsDir, { recursive: true });
+    }
+    
+    const screenshotPath = join(screenshotsDir, `${name}-${Date.now()}.png`);
     await this.page.screenshot({
-      path: `screenshots/${name}-${Date.now()}.png`,
+      path: screenshotPath,
       fullPage: true
     });
   }

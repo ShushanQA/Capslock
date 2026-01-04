@@ -1,3 +1,6 @@
+/// <reference lib="es5" />
+/// <reference lib="es2015" />
+/// <reference lib="es2020" />
 import { test, expect } from '@playwright/test';
 import { FormPage } from '../pages/FormPage';
 

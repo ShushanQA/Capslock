@@ -9,7 +9,12 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug"
   },
-  "keywords": ["playwright", "testing", "qa", "automation"],
+  "keywords": [
+    "playwright",
+    "testing",
+    "qa",
+    "automation"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -18,4 +23,3 @@
     "typescript": "^5.9.3"
   }
 }
-
