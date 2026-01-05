@@ -99,19 +99,19 @@ export class FormPage {
         // If navigation occurred, wait for page to fully load
         await this.page.waitForLoadState('domcontentloaded');
         await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(3000);
+        await this.page.waitForTimeout(2000); // Reduced from 3000ms
       }),
       step2AppearPromise.then(async () => {
         // Step 2 appeared on same page - wait for it to be fully visible
         await this.step2CheckboxLabel.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null);
         await this.page.waitForTimeout(2000);
       }),
-      this.page.waitForTimeout(8000)
+      this.page.waitForTimeout(5000) // Reduced from 8000ms
     ]);
     
     // Additional wait for page to stabilize after navigation or step transition
     // This ensures the page is ready before selecting the label
-    await this.page.waitForTimeout(3000);
+    await this.page.waitForTimeout(2000); // Reduced from 3000ms
   }
 
   async selectStep2Checkbox() {

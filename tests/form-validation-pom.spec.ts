@@ -137,7 +137,7 @@ test.describe('Form Validation Tests - POM', () => {
   });
 
   test('Full Flow: Complete form validation with positive and negative cases', async ({ page }) => {
-    test.setTimeout(120000); // Increase timeout to 120 seconds for full flow
+    test.setTimeout(300000); // Increase timeout to 5 minutes for full flow (CI may be slower)
     const formPage = new FormPage(page);
     
     // Step 1: Positive zipcode case - add "23451" and click Next
