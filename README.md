@@ -123,7 +123,7 @@ GitHub Actions workflows:
 Both workflows:
 - Install dependencies
 - Run Playwright tests
-- Upload test reports, screenshots, and videos as artifacts
+- Upload test reports, screenshots
 
 ## Best Practices
 
@@ -154,7 +154,6 @@ export async function newHelperFunction(page: Page): Promise<void> {
 
 - Screenshots: `screenshots/` directory (gitignored)
 - Test results: `test-results/` directory (gitignored)
-- HTML reports: `playwright-report/` directory (gitignored)
 
 ## Dependencies
 
