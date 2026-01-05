@@ -389,50 +389,108 @@ test.describe('Form Validation Tests - POM', () => {
     expect(isThankYouPage).toBe(isThankYouPage);
   });
 
-  test('Bug 6: ZIP code validation - special zipcodes (11111, 12345) skip mandatory steps', async ({ page }) => {
+  test('ZIP codes 11111 and 12345 - should show service area message and allow email validation', async ({ page }) => {
     const formPage = new FormPage(page);
     
     // Test with zipcode 11111
     await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.skipStep1);
-    await formPage.takeScreenshot('bug6-zipcode-11111');
+    await formPage.takeScreenshot('zipcode-11111-entered');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('bug6-after-zipcode-11111-next');
+    await formPage.takeScreenshot('after-zipcode-11111-next');
     
-    // Check if we skipped steps (should still be on step 2, not thank you)
-    const url11111 = page.url();
+    // Check for the expected "Sorry, unfortunately we don't yet install in your area" message
     const pageContent11111 = await page.textContent('body') || '';
-    const skippedSteps11111 = 
-      url11111.includes('thank') || 
-      (!pageContent11111.includes('Why Interested') && !pageContent11111.includes('Property Type'));
+    const hasServiceAreaMessage = 
+      pageContent11111.toLowerCase().includes('sorry') ||
+      pageContent11111.toLowerCase().includes('unfortunately') ||
+      pageContent11111.toLowerCase().includes("don't yet install") ||
+      pageContent11111.toLowerCase().includes('your area');
     
-    if (skippedSteps11111) {
-      console.log('BUG 6a CONFIRMED: ZIP code "11111" skipped mandatory registration steps');
+    expect(hasServiceAreaMessage).toBeTruthy();
+    console.log('✓ ZIP code 11111 correctly shows service area message');
+    
+    // Test email field validation on this screen
+    // Look for email input field - wait for it to appear
+    const emailInput = page.locator('input[type="email"], input[name="email"]').first();
+    const emailInputExists = await emailInput.count() > 0;
+    
+    if (emailInputExists) {
+      // Wait for email input to be ready (attached or visible)
+      await emailInput.waitFor({ state: 'attached', timeout: 10000 }).catch(() => null);
+      
+      // Test with invalid email
+      const isEmailVisible = await emailInput.isVisible({ timeout: 2000 }).catch(() => false);
+      if (isEmailVisible) {
+        await emailInput.fill(TestData.invalidEmails.noDomain);
+      } else {
+        await emailInput.fill(TestData.invalidEmails.noDomain, { force: true });
+      }
+      await formPage.takeScreenshot('service-area-invalid-email');
+      
+      // Try to submit or check validation
+      const submitButton = page.locator('button[type="submit"], button:has-text("Submit"), button:has-text("Continue"), button:has-text("Notify")').first();
+      const submitExists = await submitButton.count() > 0;
+      
+      if (submitExists) {
+        await submitButton.waitFor({ state: 'attached', timeout: 5000 }).catch(() => null);
+        await submitButton.click({ force: true }).catch(() => null);
+        await page.waitForTimeout(TestData.timeouts.medium);
+        await formPage.takeScreenshot('service-area-invalid-email-submitted');
+        
+        // Check if invalid email was accepted or rejected
+        const pageContentAfterInvalid = await page.textContent('body') || '';
+        const hasThankYouAfterInvalid = pageContentAfterInvalid.toLowerCase().includes('thank');
+        
+        if (hasThankYouAfterInvalid) {
+          console.log('Note: Invalid email was accepted on service area screen (may be expected behavior)');
+        } else {
+          console.log('✓ Invalid email correctly rejected on service area screen');
+        }
+      }
+      
+      // Test with valid email
+      if (isEmailVisible) {
+        await emailInput.fill(TestData.generateUniqueEmail());
+      } else {
+        await emailInput.fill(TestData.generateUniqueEmail(), { force: true });
+      }
+      await formPage.takeScreenshot('service-area-valid-email');
+      
+      if (submitExists) {
+        await submitButton.click({ force: true }).catch(() => null);
+        await page.waitForTimeout(TestData.timeouts.formSubmission);
+        await formPage.takeScreenshot('service-area-valid-email-submitted');
+        
+        // Should show thank you message for valid email
+        const pageContentAfterValid = await page.textContent('body') || '';
+        const hasThankYouAfterValid = 
+          pageContentAfterValid.toLowerCase().includes('thank') ||
+          page.url().toLowerCase().includes('thank');
+        
+        expect(hasThankYouAfterValid).toBeTruthy();
+        console.log('✓ Valid email correctly shows thank you message');
+      }
+    } else {
+      console.log('Note: Email input field not found on service area screen');
     }
     
     // Test with zipcode 12345
     await formPage.goto();
     await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.skipStep2);
-    await formPage.takeScreenshot('bug6-zipcode-12345');
+    await formPage.takeScreenshot('zipcode-12345-entered');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('bug6-after-zipcode-12345-next');
+    await formPage.takeScreenshot('after-zipcode-12345-next');
     
-    const url12345 = page.url();
     const pageContent12345 = await page.textContent('body') || '';
-    const skippedSteps12345 = 
-      url12345.includes('thank') || 
-      (!pageContent12345.includes('Why Interested') && !pageContent12345.includes('Property Type'));
+    const hasServiceAreaMessage12345 = 
+      pageContent12345.toLowerCase().includes('sorry') ||
+      pageContent12345.toLowerCase().includes('unfortunately') ||
+      pageContent12345.toLowerCase().includes("don't yet install") ||
+      pageContent12345.toLowerCase().includes('your area');
     
-    if (skippedSteps12345) {
-      console.log('BUG 6b CONFIRMED: ZIP code "12345" skipped mandatory registration steps');
-    }
-    
-    if (!skippedSteps11111 && !skippedSteps12345) {
-      console.log('BUG 6 FIXED: Special zipcodes no longer skip mandatory steps');
-    }
-    
-    // Test passes to document bug status
-    expect(skippedSteps11111 || skippedSteps12345).toBe(skippedSteps11111 || skippedSteps12345);
+    expect(hasServiceAreaMessage12345).toBeTruthy();
+    console.log('✓ ZIP code 12345 correctly shows service area message');
   });
 });

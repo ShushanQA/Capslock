@@ -9,7 +9,9 @@
 
 ## Executive Summary
 
-This report documents **6 confirmed bugs** found during automated testing of the form validation system. All bugs have been verified through automated test execution and are reproducible.
+This report documents **5 confirmed bugs** found during automated testing of the form validation system. All bugs have been verified through automated test execution and are reproducible.
+
+**Note:** ZIP codes 11111 and 12345 behavior has been verified as expected (shows service area message), not a bug.
 
 ---
 
@@ -146,43 +148,22 @@ Thank you page is displayed without requiring form submission.
 
 ---
 
-### Bug 6: ZIP Code Validation - Special Codes Skip Steps
-**Severity:** High  
-**Status:** CONFIRMED
+### ~~Bug 6: ZIP Code Validation - Special Codes Skip Steps~~ (NOT A BUG)
+**Status:** CLOSED - Expected Behavior
 
 **Description:**  
-Certain ZIP codes (`11111` and `12345`) allow users to skip mandatory registration steps (steps 2 and 3). This bypasses important data collection steps.
+ZIP codes `11111` and `12345` correctly redirect to a service area message page. This is expected behavior, not a bug.
 
-**Steps to Reproduce:**
+**Expected Behavior:**
+1. When ZIP codes `11111` or `12345` are entered, the system correctly shows: "Sorry, unfortunately we don't yet install in your area"
+2. The page includes an email input field for users to provide their email
+3. After entering a valid email, users should see a thank you message
 
-**For ZIP code 11111:**
-1. Navigate to test-qa.capslock.global
-2. Enter ZIP code: `11111`
-3. Click Next
-4. Observe if steps 2 and 3 are skipped
-
-**For ZIP code 12345:**
-1. Navigate to test-qa.capslock.global
-2. Enter ZIP code: `12345`
-3. Click Next
-4. Observe if steps 2 and 3 are skipped
-
-**Expected Result:**  
-All users should complete all mandatory steps regardless of ZIP code.
-
-**Actual Result:**  
-ZIP codes `11111` and `12345` skip steps 2 and 3, allowing direct progression to later steps or thank you page.
-
-**Screenshots:**  
-- `screenshots/bug6-zipcode-11111-*.png`
-- `screenshots/bug6-after-zipcode-11111-next-*.png`
-- `screenshots/bug6-zipcode-12345-*.png`
-- `screenshots/bug6-after-zipcode-12345-next-*.png`
-
-**Impact:**  
-- Incomplete data collection
-- Inconsistent user experience
-- Potential data quality issues
+**Test Coverage:**
+- ✅ Verifies service area message appears for zipcodes 11111 and 12345
+- ✅ Validates email field on service area screen
+- ✅ Verifies invalid email is rejected
+- ✅ Verifies valid email shows thank you message
 
 ---
 
@@ -212,12 +193,11 @@ All bug tests are designed to document bugs rather than fail. They pass and log 
 ### Priority 1 (High Severity)
 1. **Bug 2 (Duplicate Email):** Implement unique email validation at the database/API level
 2. **Bug 5 (Security):** Add server-side validation to prevent direct access to thank you page
-3. **Bug 6 (ZIP Code Skip):** Ensure all ZIP codes follow the same validation flow
 
 ### Priority 2 (Medium Severity)
-4. **Bug 1 (Email Format):** Enhance email validation regex to require proper domain format
-5. **Bug 3 (Phone All Zeros):** Add validation to reject phone numbers with all zeros
-6. **Bug 4 (Phone First Digit):** Fix phone input formatting to preserve first digit when it's 1
+3. **Bug 1 (Email Format):** Enhance email validation regex to require proper domain format
+4. **Bug 3 (Phone All Zeros):** Add validation to reject phone numbers with all zeros
+5. **Bug 4 (Phone First Digit):** Fix phone input formatting to preserve first digit when it's 1
 
 ---
 

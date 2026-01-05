@@ -39,37 +39,42 @@ export class FormPage {
   constructor(page: Page) {
     this.page = page;
 
-    // Form containers
+    // Form containers - IDs are unique, no .first() needed
     this.formContainer1 = page.locator('#form-container-1');
 
-    // Step containers - use for waiting for step visibility
+    // Step containers - Child of unique ID, no .first() needed
     this.step1Container = page.locator('#form-container-1 > div.steps.step-1');
     this.step2Container = page.locator('#form-container-1 > div.steps.step-2');
     this.step3Container = page.locator('#form-container-1 > div.steps.step-3');
     this.step4Container = page.locator('#form-container-1 > div.steps.step-4');
     this.step5Container = page.locator('#form-container-1 > div.steps.step-5');
 
-    // Step 1 - Zipcode - Use data attributes as primary, fallback to name
-    this.zipcodeInput = page.locator('input[data-zip-code-input]').or(page.locator('input[name="zipCode"]')).first();
-    this.step1NextButton = page.locator('button[data-tracking="btn-step-1"]').first();
+    // Step 1 - Zipcode
+    // Scoped to step 1 container for better reliability
+    this.zipcodeInput = this.step1Container.locator('input[data-zip-code-input], input[name="zipCode"]');
+    this.step1NextButton = this.step1Container.locator('button[data-tracking="btn-step-1"]');
 
-    // Step 2 - Why Interested - Use data attributes and for attribute
-    this.step2CheckboxLabel = page.locator('label[for="why-interested-independence-1"]').first();
-    this.step2NextButton = page.locator('button[data-tracking="btn-step-2"]').first();
+    // Step 2 - Why Interested
+    // Scoped to step 2 container for better reliability
+    this.step2CheckboxLabel = this.step2Container.locator('label[for="why-interested-independence-1"]');
+    this.step2NextButton = this.step2Container.locator('button[data-tracking="btn-step-2"]');
 
-    // Step 3 - Property Type - Use data attributes and for attribute
-    this.propertyTypeLabel = page.locator('label[for="homeowner-owned-1"]').first();
-    this.propertyTypeRadio = page.locator('input[type="radio"][name="typeOfProperty"][id="homeowner-owned-1"]').first();
-    this.step3NextButton = page.locator('button[data-tracking="btn-step-3"]').first();
+    // Step 3 - Property Type
+    // Scoped to step 3 container for better reliability
+    this.propertyTypeLabel = this.step3Container.locator('label[for="homeowner-owned-1"]');
+    this.propertyTypeRadio = this.step3Container.locator('input[type="radio"][name="typeOfProperty"][id="homeowner-owned-1"]');
+    this.step3NextButton = this.step3Container.locator('button[data-tracking="btn-step-3"]');
 
-    // Step 4 - Personal Information - Use data attributes as primary
-    this.nameInput = page.locator('input[data-name-input]').or(page.locator('input[name="name"]')).first();
-    this.emailInput = page.locator('input[type="email"][name="email"][required]').first();
-    this.step4NextButton = page.locator('button[data-tracking="btn-step-4"]').first();
+    // Step 4 - Personal Information
+    // Scoped to step 4 container for better reliability
+    this.nameInput = this.step4Container.locator('input[data-name-input], input[name="name"]');
+    this.emailInput = this.step4Container.locator('input[type="email"][name="email"][required]');
+    this.step4NextButton = this.step4Container.locator('button[data-tracking="btn-step-4"]');
 
-    // Step 5 - Phone Number - Use data attributes as primary
-    this.phoneInput = page.locator('input[data-phone-input]').or(page.locator('input[name="phone"]')).first();
-    this.step5SubmitButton = page.locator('button[data-tracking="btn-step-5"]').first();
+    // Step 5 - Phone Number
+    // Scoped to step 5 container for better reliability
+    this.phoneInput = this.step5Container.locator('input[data-phone-input], input[name="phone"]');
+    this.step5SubmitButton = this.step5Container.locator('button[data-tracking="btn-step-5"]');
   }
 
   async goto() {
@@ -210,15 +215,17 @@ export class FormPage {
     
     // Wait for step 4 container to appear (meaningful UI state)
     const step4AppearPromise = this.step4Container.waitFor({ 
-      state: 'visible', 
+      state: 'attached', 
       timeout: 20000 
     }).catch(() => null);
     
     await this.step3NextButton.click();
     
-    // Wait for step 4 to appear
+    // Wait for step 4 to appear (attached is sufficient, then wait for inputs)
     await step4AppearPromise;
-    await this.step4Container.waitFor({ state: 'visible', timeout: 10000 });
+    await this.step4Container.waitFor({ state: 'attached', timeout: 10000 });
+    // Wait for name input to be ready instead of container visibility
+    await this.nameInput.waitFor({ state: 'attached', timeout: 10000 });
   }
 
   async clickStep4Next() {
