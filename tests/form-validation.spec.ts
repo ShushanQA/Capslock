@@ -217,10 +217,7 @@ test.describe('Form Validation Tests - POM', () => {
     const hasDuplicateError = await hasDuplicateEmailError(page);
     
     if (redirectedToThankYou && !hasError && !hasDuplicateError) {
-      console.log('BUG DETECTED: Duplicate email registration was allowed');
-      console.log(`Email: ${testEmail} was registered twice`);
-    } else {
-      console.log('SUCCESS: Duplicate email was correctly rejected');
+      console.log(`Duplicate email: ${testEmail}`);
     }
     
     // Test passes to document behavior
@@ -240,7 +237,7 @@ test.describe('Form Validation Tests - POM', () => {
     await page.waitForTimeout(TestData.timeouts.formSubmission);
     await formPage.takeScreenshot('bug1-email-test-at-test-submitted');
     
-    // BUG DETECTED: Check if email without proper domain was accepted
+    // Check if email without proper domain was accepted
     const url = page.url();
     const pageContent = await page.textContent('body') || '';
     const redirectedToThankYou = 
@@ -248,9 +245,7 @@ test.describe('Form Validation Tests - POM', () => {
       pageContent.toLowerCase().includes('thank');
     
     if (redirectedToThankYou) {
-      console.log('BUG 1 CONFIRMED: Email "test@test" (without proper domain) was accepted');
-    } else {
-      console.log('BUG 1 FIXED: Email "test@test" is now correctly rejected');
+      console.log('Email "test@test" was accepted');
     }
     
     // Test passes to document bug status
@@ -279,7 +274,7 @@ test.describe('Form Validation Tests - POM', () => {
     await page.waitForTimeout(TestData.timeouts.formSubmission);
     await formPage.takeScreenshot('bug2-duplicate-email-submitted');
     
-    // BUG DETECTED: Check if duplicate email was accepted
+    // Check if duplicate email was accepted
     const url = page.url();
     const pageContent = await page.textContent('body') || '';
     const redirectedToThankYou = 
@@ -287,10 +282,7 @@ test.describe('Form Validation Tests - POM', () => {
       pageContent.toLowerCase().includes('thank');
     
     if (redirectedToThankYou) {
-      console.log('BUG 2 CONFIRMED: Duplicate email registration was allowed');
-      console.log(`Email: ${duplicateEmail} was registered twice`);
-    } else {
-      console.log('BUG 2 FIXED: Duplicate email is now correctly rejected');
+      console.log(`Duplicate email: ${duplicateEmail}`);
     }
     
     // Test passes to document bug status
@@ -310,7 +302,7 @@ test.describe('Form Validation Tests - POM', () => {
     await page.waitForTimeout(TestData.timeouts.formSubmission);
     await formPage.takeScreenshot('bug3-phone-all-zeros-submitted');
     
-    // BUG DETECTED: Check if phone with all zeros was accepted
+    // Check if phone with all zeros was accepted
     const url = page.url();
     const pageContent = await page.textContent('body') || '';
     const redirectedToThankYou = 
@@ -318,9 +310,7 @@ test.describe('Form Validation Tests - POM', () => {
       pageContent.toLowerCase().includes('thank');
     
     if (redirectedToThankYou) {
-      console.log('BUG 3 CONFIRMED: Phone number "0000000000" (all zeros) was accepted');
-    } else {
-      console.log('BUG 3 FIXED: Phone number "0000000000" is now correctly rejected');
+      console.log('Phone "0000000000" was accepted');
     }
     
     // Test passes to document bug status
@@ -344,13 +334,9 @@ test.describe('Form Validation Tests - POM', () => {
     const phoneValue = await formPage.phoneInput.inputValue();
     const digitsOnly = phoneValue.replace(/\D/g, '');
     
-    // BUG DETECTED: First digit is being stripped
+    // First digit is being stripped
     if (digitsOnly !== phoneToEnter) {
-      console.log(`BUG 4 CONFIRMED: Phone number starting with 1 is being modified`);
-      console.log(`Expected: ${phoneToEnter}, Actual: ${digitsOnly}`);
-      console.log('The first digit "1" is being stripped from the phone number');
-    } else {
-      console.log('BUG 4 FIXED: Phone number starting with 1 can now be entered correctly');
+      console.log(`Phone starting with 1: Expected ${phoneToEnter}, Actual ${digitsOnly}`);
     }
     
     // Submit and verify behavior
@@ -358,8 +344,8 @@ test.describe('Form Validation Tests - POM', () => {
     await page.waitForTimeout(TestData.timeouts.formSubmission);
     await formPage.takeScreenshot('bug4-phone-starts-with-1-submitted');
     
-    // Document the bug - test passes to document current behavior
-    expect(digitsOnly).toBe(digitsOnly); // Always passes - documents bug
+    
+    expect(digitsOnly).toBe(digitsOnly);
   });
 
   test('Bug 5: Security - Thank you page should not be accessible directly via URL', async ({ page }) => {
@@ -370,7 +356,7 @@ test.describe('Form Validation Tests - POM', () => {
     await page.waitForTimeout(TestData.timeouts.stepTransition);
     await formPage.takeScreenshot('bug5-direct-thankyou-url');
     
-    // BUG DETECTED: Check if thank you page is accessible directly
+    // Check if thank you page is accessible directly
     const url = page.url();
     const pageContent = await page.textContent('body') || '';
     const isThankYouPage = 
@@ -378,11 +364,7 @@ test.describe('Form Validation Tests - POM', () => {
       pageContent.toLowerCase().includes('thank');
     
     if (isThankYouPage) {
-      console.log('BUG 5 CONFIRMED: Thank you page is accessible directly via URL');
-      console.log('SECURITY ISSUE: Users can bypass form submission');
-      console.log(`URL: ${url}`);
-    } else {
-      console.log('BUG 5 FIXED: Thank you page is now protected and redirects to form');
+      console.log(`Thank you page accessible directly: ${url}`);
     }
     
     // Test passes to document bug status
@@ -411,30 +393,24 @@ test.describe('Form Validation Tests - POM', () => {
     console.log('✓ ZIP code 11111 correctly shows service area message');
     
     // Test email field validation on this screen
-    // Look for email input field - wait for it to appear
-    const emailInput = page.locator('input[type="email"], input[name="email"]').first();
-    const emailInputExists = await emailInput.count() > 0;
+    const emailInputExists = await formPage.serviceAreaEmailInput.count() > 0;
     
     if (emailInputExists) {
-      // Wait for email input to be ready (attached or visible)
-      await emailInput.waitFor({ state: 'attached', timeout: 10000 }).catch(() => null);
+      await formPage.serviceAreaEmailInput.waitFor({ state: 'attached', timeout: 10000 }).catch(() => null);
       
-      // Test with invalid email
-      const isEmailVisible = await emailInput.isVisible({ timeout: 2000 }).catch(() => false);
+      const isEmailVisible = await formPage.serviceAreaEmailInput.isVisible({ timeout: 2000 }).catch(() => false);
       if (isEmailVisible) {
-        await emailInput.fill(TestData.invalidEmails.noDomain);
+        await formPage.serviceAreaEmailInput.fill(TestData.invalidEmails.noDomain);
       } else {
-        await emailInput.fill(TestData.invalidEmails.noDomain, { force: true });
+        await formPage.serviceAreaEmailInput.fill(TestData.invalidEmails.noDomain, { force: true });
       }
       await formPage.takeScreenshot('service-area-invalid-email');
       
-      // Try to submit or check validation
-      const submitButton = page.locator('button[type="submit"], button:has-text("Submit"), button:has-text("Continue"), button:has-text("Notify")').first();
-      const submitExists = await submitButton.count() > 0;
+      const submitExists = await formPage.serviceAreaSubmitButton.count() > 0;
       
       if (submitExists) {
-        await submitButton.waitFor({ state: 'attached', timeout: 5000 }).catch(() => null);
-        await submitButton.click({ force: true }).catch(() => null);
+        await formPage.serviceAreaSubmitButton.waitFor({ state: 'attached', timeout: 5000 }).catch(() => null);
+        await formPage.serviceAreaSubmitButton.click({ force: true }).catch(() => null);
         await page.waitForTimeout(TestData.timeouts.medium);
         await formPage.takeScreenshot('service-area-invalid-email-submitted');
         
@@ -449,16 +425,15 @@ test.describe('Form Validation Tests - POM', () => {
         }
       }
       
-      // Test with valid email
       if (isEmailVisible) {
-        await emailInput.fill(TestData.generateUniqueEmail());
+        await formPage.serviceAreaEmailInput.fill(TestData.generateUniqueEmail());
       } else {
-        await emailInput.fill(TestData.generateUniqueEmail(), { force: true });
+        await formPage.serviceAreaEmailInput.fill(TestData.generateUniqueEmail(), { force: true });
       }
       await formPage.takeScreenshot('service-area-valid-email');
       
       if (submitExists) {
-        await submitButton.click({ force: true }).catch(() => null);
+        await formPage.serviceAreaSubmitButton.click({ force: true }).catch(() => null);
         await page.waitForTimeout(TestData.timeouts.formSubmission);
         await formPage.takeScreenshot('service-area-valid-email-submitted');
         

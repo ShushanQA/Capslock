@@ -21,7 +21,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
     
     - name: Install dependencies
@@ -34,10 +34,6 @@ jobs:
       run: npm test
       env:
         CI: true
-    
-    - name: Generate HTML Report
-      if: always()
-      run: npx playwright show-report --host 0.0.0.0 || true
     
     - name: Upload test results
       if: always()
