@@ -41,7 +41,7 @@ jobs:
     
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: post-deployment-test-report
         path: playwright-report/
@@ -49,7 +49,7 @@ jobs:
     
     - name: Upload screenshots
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: post-deployment-screenshots
         path: screenshots/
@@ -57,7 +57,7 @@ jobs:
     
     - name: Upload test videos
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: post-deployment-videos
         path: test-results/
