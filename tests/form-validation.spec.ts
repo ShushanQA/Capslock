@@ -220,8 +220,7 @@ test.describe('Form Validation Tests - POM', () => {
       console.log(`Duplicate email: ${testEmail}`);
     }
     
-    // Test passes to document behavior
-    expect(redirectedToThankYou || hasError || hasDuplicateError).toBeTruthy();
+    expect(redirectedToThankYou).toBeFalsy();
   });
 
   test('Bug 1: Email field validation - should reject email without proper domain (test@test)', async ({ page }) => {
@@ -248,8 +247,7 @@ test.describe('Form Validation Tests - POM', () => {
       console.log('Email "test@test" was accepted');
     }
     
-    // Test passes to document bug status
-    expect(redirectedToThankYou).toBe(redirectedToThankYou);
+    expect(redirectedToThankYou).toBeFalsy();
   });
 
   test('Bug 2: Duplicate email registration - should not allow multiple registrations with same email', async ({ page }) => {
@@ -285,8 +283,7 @@ test.describe('Form Validation Tests - POM', () => {
       console.log(`Duplicate email: ${duplicateEmail}`);
     }
     
-    // Test passes to document bug status
-    expect(redirectedToThankYou).toBe(redirectedToThankYou);
+    expect(redirectedToThankYou).toBeFalsy();
   });
 
   test('Bug 3: Phone number validation - should reject phone number with all zeros (0000000000)', async ({ page }) => {
@@ -313,8 +310,7 @@ test.describe('Form Validation Tests - POM', () => {
       console.log('Phone "0000000000" was accepted');
     }
     
-    // Test passes to document bug status
-    expect(redirectedToThankYou).toBe(redirectedToThankYou);
+    expect(redirectedToThankYou).toBeFalsy();
   });
 
   test('Bug 4: Phone number validation - should allow phone number starting with 1', async ({ page }) => {
@@ -339,13 +335,11 @@ test.describe('Form Validation Tests - POM', () => {
       console.log(`Phone starting with 1: Expected ${phoneToEnter}, Actual ${digitsOnly}`);
     }
     
-    // Submit and verify behavior
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.formSubmission);
     await formPage.takeScreenshot('bug4-phone-starts-with-1-submitted');
     
-    
-    expect(digitsOnly).toBe(digitsOnly);
+    expect(digitsOnly).toBe(phoneToEnter);
   });
 
   test('Bug 5: Security - Thank you page should not be accessible directly via URL', async ({ page }) => {
@@ -367,8 +361,7 @@ test.describe('Form Validation Tests - POM', () => {
       console.log(`Thank you page accessible directly: ${url}`);
     }
     
-    // Test passes to document bug status
-    expect(isThankYouPage).toBe(isThankYouPage);
+    expect(isThankYouPage).toBeFalsy();
   });
 
   test('ZIP codes 11111 and 12345 - should show service area message and allow email validation', async ({ page }) => {

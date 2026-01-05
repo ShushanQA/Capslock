@@ -53,14 +53,6 @@ jobs:
         path: screenshots/
         retention-days: 30
     
-    - name: Upload test videos
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-videos
-        path: test-results/
-        retention-days: 30
-    
     - name: Comment PR with test results
       if: github.event_name == 'pull_request' && always()
       uses: actions/github-script@v6

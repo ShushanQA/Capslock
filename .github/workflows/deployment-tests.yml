@@ -51,14 +51,6 @@ jobs:
         path: screenshots/
         retention-days: 30
     
-    - name: Upload test videos
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: post-deployment-videos
-        path: test-results/
-        retention-days: 30
-    
     - name: Create deployment status
       if: always()
       uses: actions/github-script@v6
