@@ -13,7 +13,7 @@
     "moduleResolution": "node",
     "types": ["node", "@playwright/test"]
   },
-  "include": ["tests/**/*", "pages/**/*", "*.ts"],
+  "include": ["tests/**/*", "pages/**/*", "test-data/**/*", "utils/**/*", "*.ts"],
   "exclude": ["node_modules", "dist", "test-results", "playwright-report"]
 }
 // ...existing code...
