@@ -13,7 +13,7 @@ Capslock/
 ├── utils/              # Reusable test utilities
 │   └── test-helpers.ts # Common flows and assertion helpers
 ├── tests/               # Test specifications
-│   └── form-validation-pom.spec.ts
+│   └── form-validation.spec.ts
 ├── playwright.config.ts # Playwright configuration
 ├── tsconfig.json       # TypeScript configuration
 └── package.json       # Dependencies and scripts
