@@ -21,6 +21,7 @@ export const TestData = {
     moreThan5Digits: '123456',
     nonNumeric: '12abc',
     empty: '',
+    allZeros: '00000', // Invalid - all zeros is not a valid zipcode
     // Special zipcodes that redirect to out-of-area stage (expected business behavior, NOT bugs)
     specialZipcodes: {
       outOfArea1: '11111', // Redirects to out-of-area stage

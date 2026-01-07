@@ -46,27 +46,33 @@
 - **Priority:** HIGH ⭐⭐⭐⭐⭐
 - **Status:** ✅ Covered
 
-#### 1.7 Invalid Zipcode - Only Spaces
+#### 1.7 Invalid Zipcode - All Zeros
+- **Scenario:** Enter zipcode with all zeros (e.g., "00000")
+- **Expected:** Form should reject and show validation error (00000 is not a valid zipcode)
+- **Priority:** HIGH ⭐⭐⭐⭐⭐
+- **Status:** ✅ Covered (Test: "Bug 6: Zipcode validation - should reject zipcode with all zeros")
+
+#### 1.8 Invalid Zipcode - Only Spaces
 - **Scenario:** Enter zipcode with only whitespace (e.g., "     ")
 - **Expected:** Form should reject and show validation error
 - **Priority:** MEDIUM ⭐⭐⭐
 - **Status:** ❌ Not Covered
 
-#### 1.8 Special Zipcode - 11111 (Out-of-Area Redirect)
+#### 1.9 Special Zipcode - 11111 (Out-of-Area Redirect)
 - **Scenario:** Enter zipcode "11111"
 - **Expected:** Should redirect to out-of-area stage with service area message and email field (Expected Business Behavior - NOT a bug)
 - **Priority:** MEDIUM ⭐⭐⭐
 - **Status:** ✅ Covered
 - **Note:** This is normal business logic - zipcodes 11111 and 12345 indicate areas where service is not available
 
-#### 1.9 Special Zipcode - 12345 (Out-of-Area Redirect)
+#### 1.10 Special Zipcode - 12345 (Out-of-Area Redirect)
 - **Scenario:** Enter zipcode "12345"
 - **Expected:** Should redirect to out-of-area stage with service area message and email field (Expected Business Behavior - NOT a bug)
 - **Priority:** MEDIUM ⭐⭐⭐
 - **Status:** ✅ Covered
 - **Note:** This is normal business logic - zipcodes 11111 and 12345 indicate areas where service is not available
 
-#### 1.10 Zipcode Leading/Trailing Spaces
+#### 1.11 Zipcode Leading/Trailing Spaces
 - **Scenario:** Enter zipcode with leading/trailing spaces (e.g., " 23451 ")
 - **Expected:** Should trim spaces and accept valid zipcode
 - **Priority:** LOW ⭐⭐
@@ -498,9 +504,9 @@
 
 ## Summary Statistics
 
-**Total Scenarios Identified:** 91 
-**Currently Covered:** 32 (35%)  
-**Not Covered:** 59 (65%)
+**Total Scenarios Identified:** 92 
+**Currently Covered:** 33 (36%)  
+**Not Covered:** 59 (64%)
 
 **Required Field Validations:** ✅ **All Covered**
 - Step 1 (Zipcode): ✅ Covered (Test: "Should validate that all fields are required")

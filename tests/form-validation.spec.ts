@@ -464,6 +464,42 @@ test.describe('Form Validation Tests - POM', () => {
     expect(isThankYouPage).toBeFalsy();
   });
 
+  test('Bug 6: Zipcode validation - should reject zipcode with all zeros (00000)', async ({ page }) => {
+    const formPage = new FormPage(page);
+    
+    // Enter zipcode with all zeros
+    await formPage.fillZipcode(TestData.invalidZipcodes.allZeros);
+    await formPage.takeScreenshot('bug6-zipcode-all-zeros');
+    await formPage.clickStep1Next();
+    await page.waitForTimeout(TestData.timeouts.stepTransition);
+    await formPage.takeScreenshot('bug6-zipcode-all-zeros-submitted');
+    
+    // Check if zipcode with all zeros was accepted (bug if it was)
+    const url = page.url();
+    const pageContent = await page.textContent('body') || '';
+    const redirectedToThankYou = 
+      url.toLowerCase().includes('thank') ||
+      pageContent.toLowerCase().includes('thank');
+    
+    // Check if form proceeded past step 1 (bug - should be rejected)
+    const stillOnStep1 = await isOnStep1(page);
+    const hasValidation = await hasValidationErrors(page);
+    
+    // If form proceeded to step 2 or further, it accepted the invalid zipcode
+    const proceededPastStep1 = !stillOnStep1 && !hasValidation && !redirectedToThankYou;
+    
+    if (proceededPastStep1) {
+      console.log('BUG: Zipcode "00000" was accepted and form proceeded past step 1');
+    }
+    
+    if (redirectedToThankYou) {
+      console.log('BUG: Zipcode "00000" was accepted and form completed successfully');
+    }
+    
+    // Form should reject zipcode with all zeros
+    expect(redirectedToThankYou || proceededPastStep1).toBeFalsy();
+  });
+
   test('ZIP codes 11111 and 12345 - should show service area message and allow email validation', async ({ page }) => {
     const formPage = new FormPage(page);
     

@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This report documents **5 confirmed bugs** found during automated testing of the form validation system. All bugs have been verified through automated test execution and are reproducible.
+This report documents **6 confirmed bugs** found during automated testing of the form validation system. All bugs have been verified through automated test execution and are reproducible.
 
 **Note:** ZIP codes 11111 and 12345 behavior has been verified as expected (shows service area message), not a bug.
 
@@ -148,7 +148,31 @@ Thank you page is displayed without requiring form submission.
 
 ---
 
-### ~~Bug 6: ZIP Code Validation - Special Codes Skip Steps~~ (NOT A BUG)
+### Bug 6: Zipcode Validation - All Zeros
+**Severity:** Medium  
+**Status:** CONFIRMED
+
+**Description:**  
+The zipcode field accepts `00000` (all zeros) as a valid zipcode. This should be rejected as it's not a valid zipcode format. Zipcodes cannot be all zeros.
+
+**Steps to Reproduce:**
+1. Navigate to test-qa.capslock.global
+2. Enter zipcode: `00000` (all zeros)
+3. Click "Next" or "Continue"
+
+**Expected Result:**  
+Form should reject the zipcode and show validation error.
+
+**Actual Result:**  
+Form accepts the zipcode and allows progression to the next step.
+
+**Screenshots:**  
+- `screenshots/bug6-zipcode-all-zeros-*.png`
+- `screenshots/bug6-zipcode-all-zeros-submitted-*.png`
+
+---
+
+### ~~Special ZIP Codes (11111, 12345) - Service Area Redirect~~ (NOT A BUG)
 **Status:** CLOSED - Expected Behavior
 
 **Description:**  
@@ -169,9 +193,9 @@ ZIP codes `11111` and `12345` correctly redirect to a service area message page.
 
 ## Test Results Summary
 
-**Total Tests:** 10  
+**Total Tests:** 11  
 **Passed:** 2  
-**Failed (Bug Documentation):** 8
+**Failed (Bug Documentation):** 9
 
 ### Passed Tests
 1. ✅ Should validate that all fields are required
@@ -184,7 +208,7 @@ All bug tests are designed to document bugs rather than fail. They pass and log 
 - Bug 3: Phone number with all zeros
 - Bug 4: Phone number starting with 1
 - Bug 5: Thank you page direct access
-- Bug 6: Special ZIP codes skip steps
+- Bug 6: Zipcode with all zeros (00000)
 
 ---
 
@@ -198,6 +222,7 @@ All bug tests are designed to document bugs rather than fail. They pass and log 
 3. **Bug 1 (Email Format):** Enhance email validation regex to require proper domain format
 4. **Bug 3 (Phone All Zeros):** Add validation to reject phone numbers with all zeros
 5. **Bug 4 (Phone First Digit):** Fix phone input formatting to preserve first digit when it's 1
+6. **Bug 6 (Zipcode All Zeros):** Add validation to reject zipcodes with all zeros (00000)
 
 ---
 
