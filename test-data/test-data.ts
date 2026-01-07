@@ -21,9 +21,10 @@ export const TestData = {
     moreThan5Digits: '123456',
     nonNumeric: '12abc',
     empty: '',
+    // Special zipcodes that redirect to out-of-area stage (expected business behavior, NOT bugs)
     specialZipcodes: {
-      skipStep1: '11111',
-      skipStep2: '12345',
+      outOfArea1: '11111', // Redirects to out-of-area stage
+      outOfArea2: '12345', // Redirects to out-of-area stage
     },
   },
 

@@ -14,6 +14,7 @@ Capslock/
 │   └── test-helpers.ts # Common flows and assertion helpers
 ├── tests/               # Test specifications
 │   └── form-validation.spec.ts
+├── TEST_SCENARIOS.md   # Comprehensive test scenarios documentation
 ├── playwright.config.ts # Playwright configuration
 ├── tsconfig.json       # TypeScript configuration
 └── package.json       # Dependencies and scripts
@@ -85,20 +86,13 @@ npm test -- --grep "Should validate that all fields are required"
 
 ## Test Coverage
 
-### Form Validation Tests
-1. **Required Field Validation** - Ensures all fields are required
-2. **Zipcode Format Validation** - Tests invalid zipcode formats
-3. **Full Flow Validation** - Complete form with positive and negative cases
-4. **Duplicate Email Prevention** - Ensures unique email registration
-5. **Bug Verification Tests** - Tests for 6 specific reported bugs
+For comprehensive test scenarios documentation, including all 91 scenarios, priorities, coverage status, and detailed bug information, see **[TEST_SCENARIOS.md](./TEST_SCENARIOS.md)**.
 
-### Bug Tests
-- Bug 1: Email validation (test@test)
-- Bug 2: Duplicate email registration
-- Bug 3: Phone number with all zeros (0000000000)
-- Bug 4: Phone number starting with 1
-- Bug 5: Thank you page direct URL access
-- Bug 6: Special zipcodes skipping steps (11111, 12345)
+The test suite currently covers:
+- Required field validations (all steps)
+- Format validations (zipcode, email, phone)
+- Full form flow (positive and negative cases)
+- Bug verification tests
 
 ## Configuration
 
@@ -125,13 +119,24 @@ Both workflows:
 - Run Playwright tests
 - Upload test reports, screenshots
 
+## Test Scenarios Documentation
+
+See **[TEST_SCENARIOS.md](./TEST_SCENARIOS.md)** for:
+- Complete list of 91 test scenarios organized by form step
+- Priority system and coverage tracking
+- Top priority scenarios with detailed explanations
+- Framework improvement ideas
+- Usage guidelines for test planning and reporting
+
 ## Best Practices
 
 ### Adding New Tests
-1. Use centralized test data from `test-data/test-data.ts`
-2. Use helper functions from `utils/test-helpers.ts` for common flows
-3. Add page interactions to `FormPage.ts` if needed
-4. Write meaningful assertions that verify behavior, not just visibility
+1. **Review TEST_SCENARIOS.md** - Check if scenario already exists or add new one
+2. Use centralized test data from `test-data/test-data.ts`
+3. Use helper functions from `utils/test-helpers.ts` for common flows
+4. Add page interactions to `FormPage.ts` if needed
+5. Write meaningful assertions that verify behavior, not just visibility
+6. **Update TEST_SCENARIOS.md** - Mark scenario as covered after implementing test
 
 ### Adding New Test Data
 Add to `test-data/test-data.ts`:
@@ -154,6 +159,8 @@ export async function newHelperFunction(page: Page): Promise<void> {
 
 - Screenshots: `screenshots/` directory (gitignored)
 - Test results: `test-results/` directory (gitignored)
+- HTML reports: `playwright-report/` directory (gitignored)
+- Test Scenarios Documentation: See `TEST_SCENARIOS.md` for detailed scenario documentation
 
 ## Dependencies
 

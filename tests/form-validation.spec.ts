@@ -55,6 +55,108 @@ test.describe('Form Validation Tests - POM', () => {
     }
   });
 
+  test('Should validate Step 4: Email field is required', async ({ page }) => {
+    const formPage = new FormPage(page);
+    
+    // Navigate to step 4
+    await navigateToStep4(formPage);
+    
+    // Fill name but leave email empty
+    await formPage.fillName(TestData.valid.name);
+    await formPage.takeScreenshot('step4-email-empty');
+    
+    // Try to proceed without email
+    await formPage.clickStep4Next();
+    await page.waitForTimeout(TestData.timeouts.medium);
+    await formPage.takeScreenshot('step4-email-empty-submitted');
+    
+    // Check for HTML5 validation (browser native)
+    const emailInput = formPage.emailInput;
+    const inputValidity = await emailInput.evaluate((input: HTMLInputElement) => ({
+      valid: input.checkValidity(),
+      validationMessage: input.validationMessage
+    })).catch(() => ({ valid: true, validationMessage: '' }));
+    
+    // Meaningful assertions: Form should prevent navigation OR show validation
+    const hasValidation = await hasValidationErrors(page);
+    const isStillOnStep4 = await formPage.step4Container.isVisible({ timeout: 2000 }).catch(() => false);
+    
+    // Assert that validation is working (either shows errors or prevents navigation)
+    expect(hasValidation || isStillOnStep4 || !inputValidity.valid).toBeTruthy();
+  });
+
+  test('Should validate Step 5: Phone field is required', async ({ page }) => {
+    const formPage = new FormPage(page);
+    
+    // Navigate to step 5
+    await navigateToStep5(formPage);
+    
+    // Leave phone empty and try to submit
+    await formPage.takeScreenshot('step5-phone-empty');
+    await formPage.submitForm();
+    await page.waitForTimeout(TestData.timeouts.medium);
+    await formPage.takeScreenshot('step5-phone-empty-submitted');
+    
+    // Check for HTML5 validation (browser native)
+    const phoneInput = formPage.phoneInput;
+    const inputValidity = await phoneInput.evaluate((input: HTMLInputElement) => ({
+      valid: input.checkValidity(),
+      validationMessage: input.validationMessage
+    })).catch(() => ({ valid: true, validationMessage: '' }));
+    
+    // Meaningful assertions: Form should prevent submission OR show validation
+    const hasValidation = await hasValidationErrors(page);
+    const isStillOnStep5 = await formPage.step5Container.isVisible({ timeout: 2000 }).catch(() => false);
+    const url = page.url();
+    const pageContent = await page.textContent('body') || '';
+    const redirectedToThankYou = 
+      url.toLowerCase().includes('thank') ||
+      pageContent.toLowerCase().includes('thank');
+    
+    // Assert that validation is working (either shows errors, prevents navigation, or prevents submission)
+    expect(hasValidation || isStillOnStep5 || !inputValidity.valid || !redirectedToThankYou).toBeTruthy();
+  });
+
+  test('Should validate Step 3: Property type selection is required', async ({ page }) => {
+    const formPage = new FormPage(page);
+    
+    // Navigate to step 3
+    await formPage.fillZipcode(TestData.valid.zipcode);
+    await formPage.clickStep1Next();
+    
+    // Step 2 - navigate through (assuming it's not a required field based on user feedback)
+    // Check if step 2 exists and has required fields
+    const step2Visible = await formPage.step2Container.isVisible({ timeout: 5000 }).catch(() => false);
+    if (step2Visible) {
+      // If step 2 exists, try to proceed without selecting anything
+      await formPage.takeScreenshot('step2-no-selection');
+      await formPage.clickStep2Next();
+      await page.waitForTimeout(TestData.timeouts.stepTransition);
+      // If it proceeds, continue to step 3
+    }
+    
+    // Try to proceed from step 3 without selecting property type
+    await formPage.takeScreenshot('step3-property-empty');
+    await formPage.clickStep3Next();
+    await page.waitForTimeout(TestData.timeouts.medium);
+    await formPage.takeScreenshot('step3-property-empty-submitted');
+    
+    // Check if still on step 3 or if validation errors appear
+    const isStillOnStep3 = await formPage.step3Container.isVisible({ timeout: 2000 }).catch(() => false);
+    const hasValidation = await hasValidationErrors(page);
+    
+    // Check if property type radio is required
+    const propertyRadio = formPage.propertyTypeRadio;
+    const isRequired = await propertyRadio.evaluate((input: HTMLInputElement) => {
+      return input.required || input.hasAttribute('required');
+    }).catch(() => false);
+    
+    // If property type is required, validation should prevent navigation
+    if (isRequired) {
+      expect(hasValidation || isStillOnStep3).toBeTruthy();
+    }
+  });
+
   test('Should validate zipcode format - negative cases', async ({ page }) => {
     test.setTimeout(120000); // Increased timeout for multiple test cases
     const formPage = new FormPage(page);
@@ -86,8 +188,6 @@ test.describe('Form Validation Tests - POM', () => {
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
     
-    // Note: This test documents current behavior
-    // If invalid zipcodes are accepted, that's a bug (documented but not failing test)
   });
 
   test('Full Flow: Complete form validation with positive and negative cases', async ({ page }) => {
@@ -367,8 +467,8 @@ test.describe('Form Validation Tests - POM', () => {
   test('ZIP codes 11111 and 12345 - should show service area message and allow email validation', async ({ page }) => {
     const formPage = new FormPage(page);
     
-    // Test with zipcode 11111
-    await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.skipStep1);
+    // Test with zipcode 11111 (expected: redirects to out-of-area stage - normal business behavior)
+    await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.outOfArea1);
     await formPage.takeScreenshot('zipcode-11111-entered');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
@@ -443,9 +543,9 @@ test.describe('Form Validation Tests - POM', () => {
       console.log('Note: Email input field not found on service area screen');
     }
     
-    // Test with zipcode 12345
+    // Test with zipcode 12345 (expected: redirects to out-of-area stage - normal business behavior)
     await formPage.goto();
-    await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.skipStep2);
+    await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.outOfArea2);
     await formPage.takeScreenshot('zipcode-12345-entered');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
