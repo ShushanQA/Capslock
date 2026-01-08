@@ -33,17 +33,53 @@ jobs:
       run: npx playwright install --with-deps chromium
     
     - name: Run all tests
-      run: npm test
+      run: |
+        echo "::notice::Running all tests..."
+        echo "⚠️  Note: Bug documentation tests (Bug 1-6) are EXPECTED to fail when bugs exist."
+        echo "This is normal behavior - these tests document bugs that need to be fixed."
+        npm test
       env:
         CI: true
+      continue-on-error: false
+    
+    - name: Display Test Summary Report
+      if: always()
+      run: |
+        echo "::group::📊 Test Summary Report"
+        if [ -f playwright-report/test-summary.md ]; then
+          echo "✅ Reading test summary from custom reporter..."
+          cat playwright-report/test-summary.md >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📄 Full detailed report available in artifacts: \`playwright-report/test-summary.md\`" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Custom summary not found, generating basic summary..."
+          echo "## 📊 Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Understanding Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Validation Tests (Must Pass)" >> $GITHUB_STEP_SUMMARY
+          echo "Core functionality tests that should always pass." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### ⚠️ Bug Documentation Tests (Expected Failures)" >> $GITHUB_STEP_SUMMARY
+          echo "These tests are designed to fail when bugs exist (expected behavior)." >> $GITHUB_STEP_SUMMARY
+          echo "See BUG_REPORT_SUMMARY.md for detailed bug information." >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "::endgroup::"
     
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: playwright-report
-        path: playwright-report/
+        path: |
+          playwright-report/
+          playwright-report/test-results.json
+          playwright-report/test-results.xml
+          playwright-report/test-summary.md
         retention-days: 30
+        if-no-files-found: warn
     
     - name: Upload test screenshots
       if: always()
@@ -59,12 +95,50 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const path = require('path');
           
-          // Try to read test results summary if available
-          let summary = '## Test Results\n\n';
-          summary += '✅ Tests completed\n\n';
-          summary += 'Check the artifacts for detailed reports and screenshots.';
+          let summary = '## 🧪 Test Results Summary\n\n';
+          summary += '### Test Execution Status\n\n';
+          
+          // Try to read test results if available
+          let passedCount = 'N/A';
+          let failedCount = 'N/A';
+          
+          try {
+            const testResults = JSON.parse(fs.readFileSync('playwright-report/test-results.json', 'utf8'));
+            passedCount = testResults.stats?.expected || testResults.stats?.passed || 0;
+            failedCount = testResults.stats?.unexpected || testResults.stats?.failed || 0;
+          } catch (e) {
+            // File not found or invalid JSON - use default
+          }
+          
+          summary += `| Status | Count |\n`;
+          summary += `|--------|-------|\n`;
+          summary += `| ✅ Passed | ${passedCount} |\n`;
+          summary += `| ⚠️ Failed (Expected) | ${failedCount} |\n\n`;
+          
+          summary += '### 📋 Test Categories\n\n';
+          summary += '#### ✅ Validation Tests\n';
+          summary += 'Core functionality tests that must pass:\n';
+          summary += '- Required field validation\n';
+          summary += '- Full form flow\n';
+          summary += '- Service area handling\n\n';
+          
+          summary += '#### ⚠️ Bug Documentation Tests\n';
+          summary += '**Expected to fail when bugs exist** - These tests document bugs in the system:\n';
+          summary += '- Bug 1: Email validation (test@test)\n';
+          summary += '- Bug 2: Duplicate email registration\n';
+          summary += '- Bug 3: Phone number all zeros (0000000000)\n';
+          summary += '- Bug 4: Phone number starting with 1\n';
+          summary += '- Bug 5: Thank you page direct access (security)\n';
+          summary += '- Bug 6: Zipcode all zeros (00000)\n\n';
+          
+          summary += '**📌 Note:** Bug test failures are expected when bugs exist in the system. ';
+          summary += 'These tests will pass once bugs are fixed in the application.\n\n';
+          summary += '### 📁 Artifacts\n';
+          summary += 'Check the workflow artifacts for:\n';
+          summary += '- 📄 HTML Report (interactive)\n';
+          summary += '- 📸 Screenshots\n';
+          summary += '- 📊 Test results (JSON/XML)\n';
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,

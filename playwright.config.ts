@@ -17,8 +17,14 @@ export default defineConfig({
     timeout: 30000,
   },
   reporter: [
-    ['html'],
-    ['list']
+    ['html', { 
+      outputFolder: 'playwright-report',
+      open: 'never'
+    }],
+    ['list'],
+    ['json', { outputFile: 'playwright-report/test-results.json' }],
+    ['junit', { outputFile: 'playwright-report/test-results.xml' }],
+    ['./utils/test-summary-reporter.ts']
   ],
   use: {
     baseURL: 'https://test-qa.capslock.global',
