@@ -90,15 +90,6 @@ class TestSummaryReporter implements Reporter {
     summary += `**📌 Important:** Bug documentation tests are **designed to fail** when bugs exist in the system. `;
     summary += `This is expected behavior. Tests will pass once bugs are fixed.\n\n`;
     
-    if (bugTestsFailed > 0) {
-      summary += `**Bugs Still Present (Expected Failures):**\n`;
-      bugTests.filter(t => t.status.includes('FAILED')).forEach(test => {
-        const bugNumber = test.name.match(/Bug (\d+)/)?.[1] || '';
-        summary += `- ⚠️ Bug ${bugNumber}: ${test.name.replace(/Bug \d+: /, '')}\n`;
-      });
-      summary += `\n`;
-    }
-    
     if (bugTestsPassed > 0) {
       summary += `**Bugs Fixed (Tests Passing):**\n`;
       bugTests.filter(t => t.status.includes('PASSED')).forEach(test => {
@@ -108,19 +99,7 @@ class TestSummaryReporter implements Reporter {
       summary += `\n`;
     }
 
-    summary += `## 📋 Complete Test List\n\n`;
-    summary += `| Test Name | Status | Duration (ms) | Type |\n`;
-    summary += `|-----------|--------|---------------|------|\n`;
-    
-    this.allTests.forEach(test => {
-      const duration = test.duration.toFixed(0);
-      const type = test.isBug ? '🐛 Bug Test' : '✅ Validation';
-      const statusIcon = test.status.includes('PASSED') ? '✅' : 
-                        test.status.includes('Expected') ? '⚠️' : '❌';
-      summary += `| ${test.name} | ${statusIcon} ${test.status} | ${duration} | ${type} |\n`;
-    });
-
-    summary += `\n---\n\n`;
+    summary += `---\n\n`;
     summary += `## 📝 Notes\n\n`;
     summary += `- **Bug Tests:** These tests document bugs in the system. When they fail, it means bugs still exist (expected behavior).\n`;
     summary += `- **Validation Tests:** These test core functionality and should always pass.\n`;
