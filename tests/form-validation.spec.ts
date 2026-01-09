@@ -27,7 +27,6 @@ test.describe('Form Validation Tests - POM', () => {
     const formPage = new FormPage(page);
     
     // Try to submit step 1 without filling zipcode
-    await formPage.takeScreenshot('step-1-empty');
     await formPage.clickStep1Next();
     
     // Wait for validation to appear (meaningful UI state)
@@ -40,7 +39,6 @@ test.describe('Form Validation Tests - POM', () => {
       validationMessage: input.validationMessage
     })).catch(() => ({ valid: true, validationMessage: '' }));
     
-    await formPage.takeScreenshot('step-1-empty-submitted');
     
     // Meaningful assertions: Form should prevent navigation OR show validation
     const hasValidation = await hasValidationErrors(page);
@@ -63,12 +61,10 @@ test.describe('Form Validation Tests - POM', () => {
     
     // Fill name but leave email empty
     await formPage.fillName(TestData.valid.name);
-    await formPage.takeScreenshot('step4-email-empty');
     
     // Try to proceed without email
     await formPage.clickStep4Next();
     await page.waitForTimeout(TestData.timeouts.medium);
-    await formPage.takeScreenshot('step4-email-empty-submitted');
     
     // Check for HTML5 validation (browser native)
     const emailInput = formPage.emailInput;
@@ -92,10 +88,8 @@ test.describe('Form Validation Tests - POM', () => {
     await navigateToStep5(formPage);
     
     // Leave phone empty and try to submit
-    await formPage.takeScreenshot('step5-phone-empty');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.medium);
-    await formPage.takeScreenshot('step5-phone-empty-submitted');
     
     // Check for HTML5 validation (browser native)
     const phoneInput = formPage.phoneInput;
@@ -129,17 +123,14 @@ test.describe('Form Validation Tests - POM', () => {
     const step2Visible = await formPage.step2Container.isVisible({ timeout: 5000 }).catch(() => false);
     if (step2Visible) {
       // If step 2 exists, try to proceed without selecting anything
-      await formPage.takeScreenshot('step2-no-selection');
       await formPage.clickStep2Next();
       await page.waitForTimeout(TestData.timeouts.stepTransition);
       // If it proceeds, continue to step 3
     }
     
     // Try to proceed from step 3 without selecting property type
-    await formPage.takeScreenshot('step3-property-empty');
     await formPage.clickStep3Next();
     await page.waitForTimeout(TestData.timeouts.medium);
-    await formPage.takeScreenshot('step3-property-empty-submitted');
     
     // Check if still on step 3 or if validation errors appear
     const isStillOnStep3 = await formPage.step3Container.isVisible({ timeout: 2000 }).catch(() => false);
@@ -163,7 +154,6 @@ test.describe('Form Validation Tests - POM', () => {
     
     // Test with less than 5 digits
     await formPage.fillZipcode(TestData.invalidZipcodes.lessThan5Digits);
-    await formPage.takeScreenshot('zipcode-4-digits');
     
     // Check if form allows progression (bug if it does)
     const urlBefore = page.url();
@@ -172,19 +162,16 @@ test.describe('Form Validation Tests - POM', () => {
     const urlAfter = page.url();
     const stillOnStep1 = await isOnStep1(page);
     
-    await formPage.takeScreenshot('zipcode-4-digits-submit');
     
     // Test with more than 5 digits
     await formPage.goto();
     await formPage.fillZipcode(TestData.invalidZipcodes.moreThan5Digits);
-    await formPage.takeScreenshot('zipcode-6-digits');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
     
     // Test with non-numeric characters
     await formPage.goto();
     await formPage.fillZipcode(TestData.invalidZipcodes.nonNumeric);
-    await formPage.takeScreenshot('zipcode-non-numeric');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
     
@@ -196,29 +183,20 @@ test.describe('Form Validation Tests - POM', () => {
     
     // Step 1: Positive zipcode case
     await formPage.fillZipcode(TestData.valid.zipcode);
-    await formPage.takeScreenshot('zipcode-valid-entered');
     await formPage.clickStep1Next();
-    await formPage.takeScreenshot('after-zipcode-next');
     
     // Step 2: Select checkbox
     await formPage.selectStep2Checkbox();
-    await formPage.takeScreenshot('step2-checkbox-selected');
     await formPage.clickStep2Next();
-    await formPage.takeScreenshot('after-step2-next');
     
     // Step 3: Select property type
     await formPage.selectPropertyType();
-    await formPage.takeScreenshot('step3-property-selected');
     await formPage.clickStep3Next();
-    await formPage.takeScreenshot('after-step3-next');
     
     // Step 4: Test Name field validation - negative case
-    await formPage.takeScreenshot('step4-name-email-fields');
     await formPage.fillEmail(TestData.generateUniqueEmail());
-    await formPage.takeScreenshot('step4-no-name-filled');
     await formPage.clickStep4Next();
     await page.waitForTimeout(TestData.timeouts.medium);
-    await formPage.takeScreenshot('step4-no-name-submitted');
     
     // Meaningful assertion: Should show validation or prevent navigation
     const hasNameValidation = await hasValidationErrors(page);
@@ -229,35 +207,27 @@ test.describe('Form Validation Tests - POM', () => {
     await navigateToStep4(formPage);
     await formPage.fillName(TestData.valid.name);
     await formPage.fillEmail(TestData.invalidEmails.invalidFormat);
-    await formPage.takeScreenshot('step4-invalid-email');
     await formPage.clickStep4Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('step4-invalid-email-submitted');
     
     // Step 4: Positive cases - valid name and email
     await formPage.goto();
     await navigateToStep4(formPage);
     await formPage.fillName(TestData.valid.name);
     await formPage.fillEmail(TestData.generateUniqueEmail());
-    await formPage.takeScreenshot('step4-valid-data');
     await formPage.clickStep4Next();
-    await formPage.takeScreenshot('after-step4-next');
     
     // Step 5: Test Phone validation - negative cases
-    await formPage.takeScreenshot('step5-phone-field');
     
     // Less than 10 digits
     await formPage.fillPhone(TestData.invalidPhones.lessThan10Digits);
-    await formPage.takeScreenshot('step5-phone-9-digits');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('step5-phone-9-digits-submitted');
     
     // More than 10 digits
     await formPage.goto();
     await navigateToStep5(formPage);
     await formPage.fillPhone(TestData.invalidPhones.moreThan10Digits);
-    await formPage.takeScreenshot('step5-phone-11-digits');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
     
@@ -265,7 +235,6 @@ test.describe('Form Validation Tests - POM', () => {
     await formPage.goto();
     await navigateToStep5(formPage);
     await formPage.fillPhone(TestData.invalidPhones.withDashes);
-    await formPage.takeScreenshot('step5-phone-with-dashes');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
     
@@ -273,10 +242,8 @@ test.describe('Form Validation Tests - POM', () => {
     await formPage.goto();
     await navigateToStep5(formPage);
     await formPage.fillPhone(TestData.valid.phone);
-    await formPage.takeScreenshot('step5-valid-phone');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.formSubmission);
-    await formPage.takeScreenshot('after-step5-submit');
     
     // Meaningful assertion: Should redirect to thank you page
     await expectThankYouPage(page);
@@ -291,7 +258,6 @@ test.describe('Form Validation Tests - POM', () => {
       email: testEmail,
       phone: TestData.users.johnDoe.phone,
     });
-    await formPage.takeScreenshot('duplicate-email-first-registration');
     await page.waitForTimeout(TestData.timeouts.formSubmission);
     
     // Verify first registration succeeded
@@ -301,10 +267,8 @@ test.describe('Form Validation Tests - POM', () => {
     await formPage.goto();
     await navigateToStep5(formPage, TestData.users.janeSmith.name, testEmail);
     await formPage.fillPhone(TestData.users.janeSmith.phone);
-    await formPage.takeScreenshot('duplicate-email-second-registration-before-submit');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.formSubmission);
-    await formPage.takeScreenshot('duplicate-email-second-registration-after-submit');
     
     // Check if duplicate email was accepted (bug) or rejected (correct behavior)
     const url = page.url();
@@ -329,12 +293,10 @@ test.describe('Form Validation Tests - POM', () => {
     await navigateToStep4(formPage);
     await formPage.fillName(TestData.users.default.name);
     await formPage.fillEmail(TestData.invalidEmails.noDomain);
-    await formPage.takeScreenshot('bug1-email-test-at-test');
     await formPage.clickStep4Next();
     await formPage.fillPhone(TestData.valid.phone);
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.formSubmission);
-    await formPage.takeScreenshot('bug1-email-test-at-test-submitted');
     
     // Check if email without proper domain was accepted
     const url = page.url();
@@ -361,16 +323,13 @@ test.describe('Form Validation Tests - POM', () => {
       phone: TestData.users.johnDoe.phone,
     });
     await page.waitForTimeout(TestData.timeouts.formSubmission);
-    await formPage.takeScreenshot('bug2-first-registration');
     
     // Second registration with same email
     await formPage.goto();
     await navigateToStep5(formPage, TestData.users.janeSmith.name, duplicateEmail);
     await formPage.fillPhone(TestData.users.janeSmith.phone);
-    await formPage.takeScreenshot('bug2-duplicate-email-before-submit');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.formSubmission);
-    await formPage.takeScreenshot('bug2-duplicate-email-submitted');
     
     // Check if duplicate email was accepted
     const url = page.url();
@@ -394,10 +353,8 @@ test.describe('Form Validation Tests - POM', () => {
     await formPage.fillEmail(TestData.generateUniqueEmail());
     await formPage.clickStep4Next();
     await formPage.fillPhone(TestData.invalidPhones.allZeros);
-    await formPage.takeScreenshot('bug3-phone-all-zeros');
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.formSubmission);
-    await formPage.takeScreenshot('bug3-phone-all-zeros-submitted');
     
     // Check if phone with all zeros was accepted
     const url = page.url();
@@ -424,7 +381,6 @@ test.describe('Form Validation Tests - POM', () => {
     // Try to fill phone number starting with 1
     const phoneToEnter = TestData.valid.phone; // "1234567890"
     await formPage.fillPhone(phoneToEnter);
-    await formPage.takeScreenshot('bug4-phone-starts-with-1');
     
     // Check what was actually entered
     const phoneValue = await formPage.phoneInput.inputValue();
@@ -437,7 +393,6 @@ test.describe('Form Validation Tests - POM', () => {
     
     await formPage.submitForm();
     await page.waitForTimeout(TestData.timeouts.formSubmission);
-    await formPage.takeScreenshot('bug4-phone-starts-with-1-submitted');
     
     expect(digitsOnly).toBe(phoneToEnter);
   });
@@ -448,7 +403,6 @@ test.describe('Form Validation Tests - POM', () => {
     // Try to access thank you page directly without form submission
     await page.goto(TestData.urls.thankYou);
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('bug5-direct-thankyou-url');
     
     // Check if thank you page is accessible directly
     const url = page.url();
@@ -469,10 +423,8 @@ test.describe('Form Validation Tests - POM', () => {
     
     // Enter zipcode with all zeros
     await formPage.fillZipcode(TestData.invalidZipcodes.allZeros);
-    await formPage.takeScreenshot('bug6-zipcode-all-zeros');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('bug6-zipcode-all-zeros-submitted');
     
     // Check if zipcode with all zeros was accepted (bug if it was)
     const url = page.url();
@@ -505,10 +457,8 @@ test.describe('Form Validation Tests - POM', () => {
     
     // Test with zipcode 11111 (expected: redirects to out-of-area stage - normal business behavior)
     await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.outOfArea1);
-    await formPage.takeScreenshot('zipcode-11111-entered');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('after-zipcode-11111-next');
     
     // Check for the expected "Sorry, unfortunately we don't yet install in your area" message
     const pageContent11111 = await page.textContent('body') || '';
@@ -533,7 +483,6 @@ test.describe('Form Validation Tests - POM', () => {
       } else {
         await formPage.serviceAreaEmailInput.fill(TestData.invalidEmails.noDomain, { force: true });
       }
-      await formPage.takeScreenshot('service-area-invalid-email');
       
       const submitExists = await formPage.serviceAreaSubmitButton.count() > 0;
       
@@ -541,7 +490,6 @@ test.describe('Form Validation Tests - POM', () => {
         await formPage.serviceAreaSubmitButton.waitFor({ state: 'attached', timeout: 5000 }).catch(() => null);
         await formPage.serviceAreaSubmitButton.click({ force: true }).catch(() => null);
         await page.waitForTimeout(TestData.timeouts.medium);
-        await formPage.takeScreenshot('service-area-invalid-email-submitted');
         
         // Check if invalid email was accepted or rejected
         const pageContentAfterInvalid = await page.textContent('body') || '';
@@ -559,12 +507,10 @@ test.describe('Form Validation Tests - POM', () => {
       } else {
         await formPage.serviceAreaEmailInput.fill(TestData.generateUniqueEmail(), { force: true });
       }
-      await formPage.takeScreenshot('service-area-valid-email');
       
       if (submitExists) {
         await formPage.serviceAreaSubmitButton.click({ force: true }).catch(() => null);
         await page.waitForTimeout(TestData.timeouts.formSubmission);
-        await formPage.takeScreenshot('service-area-valid-email-submitted');
         
         // Should show thank you message for valid email
         const pageContentAfterValid = await page.textContent('body') || '';
@@ -582,10 +528,8 @@ test.describe('Form Validation Tests - POM', () => {
     // Test with zipcode 12345 (expected: redirects to out-of-area stage - normal business behavior)
     await formPage.goto();
     await formPage.fillZipcode(TestData.invalidZipcodes.specialZipcodes.outOfArea2);
-    await formPage.takeScreenshot('zipcode-12345-entered');
     await formPage.clickStep1Next();
     await page.waitForTimeout(TestData.timeouts.stepTransition);
-    await formPage.takeScreenshot('after-zipcode-12345-next');
     
     const pageContent12345 = await page.textContent('body') || '';
     const hasServiceAreaMessage12345 = 

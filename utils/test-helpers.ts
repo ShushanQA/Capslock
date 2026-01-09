@@ -226,3 +226,45 @@ export async function waitForStepTransition(
   await stepContainer.waitFor({ state: 'visible', timeout });
 }
 
+/**
+ * Wait for step 2 to be visible after navigation from step 1
+ */
+export async function waitForStep2(page: Page): Promise<void> {
+  const step2Container = page.locator('#form-container-1 > div.steps.step-2');
+  await step2Container.waitFor({ state: 'visible', timeout: 15000 });
+}
+
+/**
+ * Wait for step 3 to be visible after navigation from step 2
+ */
+export async function waitForStep3(page: Page): Promise<void> {
+  const step3Container = page.locator('#form-container-1 > div.steps.step-3');
+  await step3Container.waitFor({ state: 'visible', timeout: 15000 });
+}
+
+/**
+ * Wait for step 4 to be visible after navigation from step 3
+ */
+export async function waitForStep4(page: Page): Promise<void> {
+  const step4Container = page.locator('#form-container-1 > div.steps.step-4');
+  await step4Container.waitFor({ state: 'visible', timeout: 15000 });
+}
+
+/**
+ * Wait for step 5 to be visible after navigation from step 4
+ */
+export async function waitForStep5(page: Page): Promise<void> {
+  const step5Container = page.locator('#form-container-1 > div.steps.step-5');
+  await step5Container.waitFor({ state: 'visible', timeout: 15000 });
+}
+
+/**
+ * Wait for form submission to complete (thank you page or error)
+ */
+export async function waitForFormSubmission(page: Page): Promise<void> {
+  await Promise.race([
+    page.waitForURL((url) => url.toString().toLowerCase().includes('thank'), { timeout: 15000 }).catch(() => null),
+    page.locator('h1:has-text("Thank")').waitFor({ state: 'visible', timeout: 15000 }).catch(() => null),
+    page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => null)
+  ]);
+}
